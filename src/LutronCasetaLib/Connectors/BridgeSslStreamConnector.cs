@@ -1,5 +1,4 @@
-﻿using Example;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -79,7 +78,7 @@ namespace LutronCaseta.Connectors
                     var str = Encoding.UTF8.GetString(segment.Array, offset, count);
                     Console.Write(str);
                 },
-                (e) => ExceptionHandler.Handle(e),
+                //(e) => ExceptionHandler.Handle(e),
                 () => Console.WriteLine("Done"), TokenSource.Token);
             
         }

@@ -19,7 +19,6 @@ using System.Reactive.Linq;
 using System.Reactive;
 using System.Reactive.Concurrency;
 using LutronCaseta.Connectors.BouncyTls;
-using Example;
 
 namespace LutronCaseta.Connectors
 {
@@ -90,50 +89,8 @@ namespace LutronCaseta.Connectors
                     var str = Encoding.UTF8.GetString(segment.Array);
                     Console.Write(str);
                 },
-                (e) => ExceptionHandler.Handle(e),
+                //(e) => ExceptionHandler.Handle(e),
                 () => Console.WriteLine("Done"), TokeSource.Token);
-
-            //readObservable
-            //    .ObserveOn(NewThreadScheduler.Default)
-            //    .Subscribe(TokeSource.Token);
-                //.s
-                //.Subscribe((segment) =>
-                //{
-                //    if (segment == null || segment.Array == null) return;
-
-                //    var str = segment.Array.ToString();
-                //    Console.WriteLine(str);
-                //},
-                //() =>
-                //{
-                //    Console.WriteLine("read observable Completed");
-                //});
-                
-                      
-                
-                
-
-            //string receiveText;
-            //bool endOfStream;
-            //while (true)
-            //{
-            //    try
-            //    {
-            //        if (endOfStream)
-            //        {
-            //            break;
-            //        }
-            //        if ((receiveText = await reader.ReadLineAsync()) != null)
-            //        {
-            //            Console.WriteLine("CLIENT: received \"" + receiveText + "\"");
-            //        }
-            //    } catch(Exception ex)
-            //    {
-            //        var ex1 = ex;
-            //    }
-            //}
-
-            //Console.WriteLine("CLIENT: end-of-stream");
         }
 
         private void WriteString(string stringToWrite)
