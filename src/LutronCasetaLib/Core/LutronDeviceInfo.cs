@@ -5,7 +5,7 @@ using System.Text;
 
 namespace LutronCaseta.Core
 {
-    public class LutronDeviceInfo
+    public class LutronDeviceInfo : ILutronDeviceInfo
     {
         internal LutronDeviceInfo(IPAddress ipAddress, string codeVersion, string macAddress)
         {
