@@ -1,4 +1,7 @@
-﻿using LutronCaseta.Connectors;
+﻿using Example;
+using Example.Core;
+using LutronCaseta.Connectors;
+using LutronCaseta.Discovery;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -20,34 +23,30 @@ namespace LutronCaseta
         {
             SynchronizationContext.SetSynchronizationContext(new AsyncSynchronizationContext());
             // ensure unobserved task exceptions (unawaited async methods returning Task or Task<T>) are handled
-            TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
+            TaskScheduler.UnobservedTaskException += (sender, e) =>
+            {
+                e.SetObserved();
+                var exception = e.Exception;
+                ExceptionHandler.Handle(exception);
+            };
             Task task = Task.Run(RunMe);
             Console.ReadKey();
         }
 
-
-
-
-        static void TaskScheduler_UnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
-        {
-            e.SetObserved();
-            var exception = e.Exception;
-            ExceptionHandler.Handle(exception);
-        }
-
-        public static async Task EnumerateAllServicesFromAllHosts()
-        {
-            var responses = await ZeroconfResolver.ResolveAsync("_lutron._tcp.local.");
-            foreach (var resp in responses)
-                Console.WriteLine(resp);
-        }
-
+        
         public static async Task RunMe()
         {
-            await EnumerateAllServicesFromAllHosts();
+            // get the devices on my network
+            var devices = await LutronDiscovery.DiscoverAllLutronDevices();
+            // find the first one (there is only one at my house)
+            var firstDevice = devices.FirstOrDefault();
 
+            if(firstDevice == null)
+            {
+                throw new Exception("Where is my bridge pro?");
+            }
 
-            IPAddress bridgeAddress = IPAddress.Parse("192.168.99.123");
+            IPAddress bridgeAddress = firstDevice.IPAddress;
             var cancelToken = new CancellationToken();
 
             using (var connector = new BridgeSslStreamConnector(bridgeAddress, cancelToken))
@@ -84,44 +83,7 @@ namespace LutronCaseta
             }
 
         }
-
-
-
-    }
-
-    public class AsyncSynchronizationContext : SynchronizationContext
-    {
-        public override void Send(SendOrPostCallback callback, object state)
-        {
-            try
-            {
-                callback(state);
-            }
-            catch (Exception ex)
-            {
-                ExceptionHandler.Handle(ex);
-            }
-        }
-
-        public override void Post(SendOrPostCallback callback, object state)
-        {
-            try
-            {
-                callback(state);
-            }
-            catch (Exception ex)
-            {
-                ExceptionHandler.Handle(ex);
-            }
-        }
-    }
-
-    public static class ExceptionHandler
-    {
-        public static void Handle(Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-        }
+        
     }
 
 }
