@@ -11,6 +11,7 @@ using System.Text;
 
 namespace LutronCaseta.Connectors.BouncyTls
 {
+    [Obsolete]
     public class BridgeTlsAuthentication : TlsAuthentication
     {
         readonly TlsClientContext context;

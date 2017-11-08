@@ -6,6 +6,7 @@ using System.Text;
 
 namespace LutronCaseta.Connectors.BouncyTls
 {
+    [Obsolete]
     public class BridgeTlsClient : DefaultTlsClient
     {
         public override TlsAuthentication GetAuthentication()

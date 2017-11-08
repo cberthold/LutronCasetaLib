@@ -22,6 +22,7 @@ using LutronCaseta.Connectors.BouncyTls;
 
 namespace LutronCaseta.Connectors
 {
+    [Obsolete]
     public class BridgeTlsConnector : IDisposable
     {
         public const int DEFAULT_TLS_BRIDGE_PORT = 8081;
