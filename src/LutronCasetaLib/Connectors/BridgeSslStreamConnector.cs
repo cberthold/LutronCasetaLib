@@ -20,15 +20,15 @@ namespace LutronCaseta.Connectors
 
         public IPAddress BridgeAddress { get; private set; }
         public int BridgePort { get; private set; } = DEFAULT_TLS_BRIDGE_PORT;
-        public string Username { get; private set; } = "lutron";
-        public string Password { get; private set; } = "integration";
-        public CancellationTokenSource TokenSource { get; private set; } = new CancellationTokenSource();
+        public CancellationToken CancelToken { get; private set; }
 
         SslStream sslStream;
         IObservable<ArraySegment<byte>> readObservable;
         IObserver<ArraySegment<byte>> writeObservable;
         //StreamWriter writer;
         //StreamReader reader;
+
+        #region Connect to stream
 
         public async Task<bool> Connect()
         {
@@ -57,10 +57,12 @@ namespace LutronCaseta.Connectors
             return stream;
         }
 
+        #endregion
+
         private void ListenForWrite(SslStream sslStream)
         {
             writeObservable = sslStream
-                .ToStreamObserver(TokenSource.Token);
+                .ToStreamObserver(CancelToken);
         }
 
         public void ListenForData(SslStream sslStream)
@@ -79,8 +81,8 @@ namespace LutronCaseta.Connectors
                     Console.Write(str);
                 },
                 //(e) => ExceptionHandler.Handle(e),
-                () => Console.WriteLine("Done"), TokenSource.Token);
-            
+                () => Console.WriteLine("Done"), CancelToken);
+
         }
 
         private void WriteString(string stringToWrite)
@@ -114,6 +116,7 @@ namespace LutronCaseta.Connectors
         public BridgeSslStreamConnector(IPAddress bridgeAddress, CancellationToken token = default(CancellationToken))
         {
             BridgeAddress = bridgeAddress;
+            CancelToken = token;
         }
 
 
