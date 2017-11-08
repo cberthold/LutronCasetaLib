@@ -9,21 +9,27 @@ using Zeroconf;
 
 namespace LutronCaseta.Discovery
 {
-    public class LutronDiscovery
+    /// <summary>
+    /// Discovers Lutron devices via MDNS Bonjour multicast calls
+    /// </summary>
+    public sealed class LutronDiscovery
     {
-        const string LUTRON_SERVICE_MDNS = "_lutron._tcp.local.";
-        const string CODE_VERSION = "CODEVER";
-        const string MAC_ADDRESS = "MACADDR";
+        public const string LUTRON_SERVICE_MDNS = "_lutron._tcp.local.";
+        public const string CODE_VERSION = "CODEVER";
+        public const string MAC_ADDRESS = "MACADDR";
 
-        public static async Task<IEnumerable<ILutronDeviceInfo>> DiscoverAllLutronDevices()
+        public static IDiscoveryResolver Resolver { get; set; } = new ZeroconfDiscoveryResolver();
+
+        public async Task<IEnumerable<ILutronDeviceInfo>> DiscoverAllLutronDevices()
         {
-            var responses = await ZeroconfResolver.ResolveAsync(LUTRON_SERVICE_MDNS);
+            // resolve out classes using zeroconf
+            var responses = await Resolver.ResolveAsync(LUTRON_SERVICE_MDNS);
+            // iterate the responses and return them as ILutronDeviceInfo
             return IterateDiscoveryResponses(responses);
         }
 
-        private static IEnumerable<ILutronDeviceInfo> IterateDiscoveryResponses(IReadOnlyList<IZeroconfHost> responses)
+        private IEnumerable<ILutronDeviceInfo> IterateDiscoveryResponses(IReadOnlyList<IZeroconfHost> responses)
         {
-
             foreach (var resp in responses)
             {
                 IPAddress ipAddress = IPAddress.Parse(resp.IPAddress);

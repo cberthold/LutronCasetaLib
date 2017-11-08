@@ -37,7 +37,7 @@ namespace LutronCaseta
         public static async Task RunMe()
         {
             // get the devices on my network
-            var devices = await LutronDiscovery.DiscoverAllLutronDevices();
+            var devices = await new LutronDiscovery().DiscoverAllLutronDevices();
             // find the first one (there is only one at my house)
             var firstDevice = devices.FirstOrDefault();
 
