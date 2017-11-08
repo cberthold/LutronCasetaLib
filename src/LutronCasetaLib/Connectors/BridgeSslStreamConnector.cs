@@ -15,19 +15,35 @@ namespace LutronCaseta.Connectors
 {
     public class BridgeSslStreamConnector : IDisposable
     {
+
+        #region host information and public props
+
         public const int DEFAULT_TLS_BRIDGE_PORT = 8081;
-        #region host information
 
         public IPAddress BridgeAddress { get; private set; }
         public int BridgePort { get; private set; } = DEFAULT_TLS_BRIDGE_PORT;
         public CancellationToken CancelToken { get; private set; }
 
+        #endregion
+
+        #region private properties
+
         SslStream sslStream;
         IObservable<ArraySegment<byte>> readObservable;
         IObserver<ArraySegment<byte>> writeObservable;
-        //StreamWriter writer;
-        //StreamReader reader;
 
+        #endregion
+
+        #region Constructor
+
+        public BridgeSslStreamConnector(IPAddress bridgeAddress, CancellationToken token = default(CancellationToken))
+        {
+            BridgeAddress = bridgeAddress;
+            CancelToken = token;
+        }
+
+        #endregion
+        
         #region Connect to stream
 
         public async Task<bool> Connect()
@@ -59,6 +75,8 @@ namespace LutronCaseta.Connectors
 
         #endregion
 
+        #region Observable listeners
+
         private void ListenForWrite(SslStream sslStream)
         {
             writeObservable = sslStream
@@ -82,8 +100,11 @@ namespace LutronCaseta.Connectors
                 },
                 //(e) => ExceptionHandler.Handle(e),
                 () => Console.WriteLine("Done"), CancelToken);
-
         }
+
+        #endregion
+
+        #region Write commands
 
         private void WriteString(string stringToWrite)
         {
@@ -108,19 +129,10 @@ namespace LutronCaseta.Connectors
             WriteString(deviceCommand);
         }
 
-
         #endregion
 
-
-
-        public BridgeSslStreamConnector(IPAddress bridgeAddress, CancellationToken token = default(CancellationToken))
-        {
-            BridgeAddress = bridgeAddress;
-            CancelToken = token;
-        }
-
-
         #region IDisposable Support
+
         private bool disposedValue = false; // To detect redundant calls
 
         protected virtual void Dispose(bool disposing)
@@ -151,8 +163,8 @@ namespace LutronCaseta.Connectors
             Dispose(true);
             GC.SuppressFinalize(this);
         }
+
         #endregion
 
     }
-
 }
