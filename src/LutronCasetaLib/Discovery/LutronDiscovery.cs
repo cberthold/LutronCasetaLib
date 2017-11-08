@@ -15,13 +15,13 @@ namespace LutronCaseta.Discovery
         const string CODE_VERSION = "CODEVER";
         const string MAC_ADDRESS = "MACADDR";
 
-        public static async Task<IEnumerable<LutronDeviceInfo>> DiscoverAllLutronDevices()
+        public static async Task<IEnumerable<ILutronDeviceInfo>> DiscoverAllLutronDevices()
         {
             var responses = await ZeroconfResolver.ResolveAsync(LUTRON_SERVICE_MDNS);
             return IterateDiscoveryResponses(responses);
         }
 
-        private static IEnumerable<LutronDeviceInfo> IterateDiscoveryResponses(IReadOnlyList<IZeroconfHost> responses)
+        private static IEnumerable<ILutronDeviceInfo> IterateDiscoveryResponses(IReadOnlyList<IZeroconfHost> responses)
         {
 
             foreach (var resp in responses)
