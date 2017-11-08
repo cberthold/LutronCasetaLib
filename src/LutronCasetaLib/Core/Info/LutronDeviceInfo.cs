@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Text;
 
-namespace LutronCaseta.Core
+namespace LutronCaseta.Core.Info
 {
     public class LutronDeviceInfo : ILutronDeviceInfo
     {

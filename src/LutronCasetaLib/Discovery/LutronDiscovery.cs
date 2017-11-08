@@ -1,4 +1,5 @@
 ﻿using LutronCaseta.Core;
+using LutronCaseta.Core.Info;
 using System;
 using System.Collections.Generic;
 using System.Linq;
