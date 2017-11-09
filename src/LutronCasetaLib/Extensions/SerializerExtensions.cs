@@ -9,7 +9,7 @@ namespace LutronCaseta.Extensions
 {
     public static class SerializerExtensions
     {
-        public static string ToJson(this CommuniqueType self) => JsonConvert.SerializeObject(self, Converter.Settings);
+        public static string ToJson(this ICommuniqueType self) => JsonConvert.SerializeObject(self, Converter.Settings);
 
     }
 }

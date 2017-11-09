@@ -1,4 +1,5 @@
 ﻿using LutronCaseta.Core.Commands.Write;
+using LutronCaseta.Responses;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -88,7 +89,7 @@ namespace LutronCaseta.Connectors
         {
 
             readObservable = sslStream
-                .ToStreamObservable(9999)
+                .ToStreamObservable(24576)
                 .SubscribeOn(NewThreadScheduler.Default);
 
             readObservable
@@ -98,6 +99,7 @@ namespace LutronCaseta.Connectors
                     var count = segment.Count;
                     var str = Encoding.UTF8.GetString(segment.Array, offset, count);
                     Console.Write(str);
+                    var mappedObjcect = new ResponseMapper().MapJsonResponse(str);
                 },
                 //(e) => ExceptionHandler.Handle(e),
                 () => Console.WriteLine("Done"), CancelToken);
