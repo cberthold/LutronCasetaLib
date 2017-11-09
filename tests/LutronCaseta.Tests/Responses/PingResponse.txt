@@ -1,0 +1,1 @@
+﻿{"CommuniqueType":"ReadResponse","Header":{"MessageBodyType":"OnePingResponse","StatusCode":"200 OK","Url":"/server/1/status/ping"},"Body":{"PingResponse":{"LEAPVersion":1.106}}}
