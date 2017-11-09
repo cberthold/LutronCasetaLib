@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LutronCaseta.Core.Commands;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -13,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace LutronCaseta.Connectors
 {
-    public class BridgeSslStreamConnector : IDisposable
+    public class BridgeSslStreamConnector : IDisposable, IWriteProcessor
     {
 
         #region host information and public props
@@ -43,7 +44,7 @@ namespace LutronCaseta.Connectors
         }
 
         #endregion
-        
+
         #region Connect to stream
 
         public async Task<bool> Connect()
@@ -104,9 +105,32 @@ namespace LutronCaseta.Connectors
 
         #endregion
 
+        #region Mediate write commands
+
+        void IWriteProcessor.ExecuteCommand(IWriteCommand command)
+        {
+            if(command == null)
+            {
+                throw new ArgumentNullException(nameof(command));
+            }
+            // send the command
+            command.SendCommand(this);
+        }
+
+        /// <summary>
+        /// Write string method that the command uses to mediate to the writeObservable
+        /// </summary>
+        /// <param name="writeString"></param>
+        void IWriteProcessor.WriteString(string writeString)
+        {
+            this.WriteStringInternal(writeString);
+        }
+
+        #endregion
+
         #region Write commands
 
-        private void WriteString(string stringToWrite)
+        private void WriteStringInternal(string stringToWrite)
         {
             Console.WriteLine($"Writing: {stringToWrite}");
             var writeBuffer = Encoding.UTF8.GetBytes(stringToWrite);
@@ -114,21 +138,7 @@ namespace LutronCaseta.Connectors
             writeObservable.OnNext(new ArraySegment<byte>(writeBuffer, 0, writeBuffer.Length));
             Console.WriteLine("Sent");
         }
-
-        public void Ping()
-        {
-            string ping = "{\"CommuniqueType\":\"ReadRequest\",\"Header\":{\"Url\":\"/server/1/status/ping\"}}\n";
-            WriteString(ping);
-
-        }
-
-        public void GetDevices()
-        {
-            string deviceCommand = "{\"CommuniqueType\":\"ReadRequest\",\"Header\":{\"Url\":\"/device\"}}\n";
-
-            WriteString(deviceCommand);
-        }
-
+        
         #endregion
 
         #region IDisposable Support
@@ -163,6 +173,7 @@ namespace LutronCaseta.Connectors
             Dispose(true);
             GC.SuppressFinalize(this);
         }
+
 
         #endregion
 
