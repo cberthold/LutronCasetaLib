@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace LutronCaseta.Core.Commands
+namespace LutronCaseta.Core.Commands.Write
 {
     public abstract class AbstractWriteCommand : IWriteCommand
     {

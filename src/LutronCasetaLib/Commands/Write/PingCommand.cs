@@ -1,9 +1,9 @@
-﻿using LutronCaseta.Core.Commands;
+﻿using LutronCaseta.Core.Commands.Write;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace LutronCaseta.Commands
+namespace LutronCaseta.Commands.Write
 {
     public class PingCommand : AbstractWriteCommand
     {

@@ -1,5 +1,5 @@
-﻿using LutronCaseta.Commands;
-using LutronCaseta.Core.Commands;
+﻿using LutronCaseta.Commands.Write;
+using LutronCaseta.Core.Commands.Write;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,6 +8,9 @@ namespace LutronCaseta
 {
     public static class ConnectorExtensions
     {
+
+        #region Write commands
+
         public static void Ping(this IWriteProcessor processor)
         {
             var command = new PingCommand();
@@ -19,5 +22,7 @@ namespace LutronCaseta
             var command = new GetDevicesCommand();
             processor.ExecuteCommand(command);
         }
+
+        #endregion
     }
 }
