@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace LutronCaseta.Utilities
+namespace LutronCaseta.Core.Utilities
 {
     public class Converter
     {

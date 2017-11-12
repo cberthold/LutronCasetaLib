@@ -13,5 +13,9 @@
     <PackageReference Include="Telnet" Version="0.8.0" />
     <PackageReference Include="Zeroconf" Version="2.9.0" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\LutronCaseta.Core\LutronCaseta.Core.csproj" />
+  </ItemGroup>
 
 </Project>

@@ -1,13 +1,14 @@
-﻿using System;
+﻿using LutronCaseta.Core.Info;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Text;
 
-namespace LutronCaseta.Core.Info
+namespace LutronCaseta.Info
 {
     public class LutronDeviceInfo : ILutronDeviceInfo
     {
-        internal LutronDeviceInfo(IPAddress ipAddress, string codeVersion, string macAddress)
+        public LutronDeviceInfo(IPAddress ipAddress, string codeVersion, string macAddress)
         {
             IPAddress = ipAddress;
             CodeVersion = codeVersion;

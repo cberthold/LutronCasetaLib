@@ -10,7 +10,7 @@ using System.Text;
 
 namespace LutronCaseta.Core.Options
 {
-    public class BridgeSslStreamOptions
+    public class BridgeSslStreamOptions : IBridgeSslStreamOptions
     {
 
         public const int DEFAULT_TLS_BRIDGE_PORT = 8081;

@@ -1,4 +1,4 @@
-﻿using LutronCaseta.Utilities;
+﻿using LutronCaseta.Core.Utilities;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
