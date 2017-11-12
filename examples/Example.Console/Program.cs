@@ -35,7 +35,7 @@ namespace LutronCaseta
             Console.ReadKey();
         }
 
-        
+
         public static async Task RunMe()
         {
             // get the devices on my network
@@ -43,7 +43,7 @@ namespace LutronCaseta
             // find the first one (there is only one at my house)
             var firstDevice = devices.FirstOrDefault();
 
-            if(firstDevice == null)
+            if (firstDevice == null)
             {
                 throw new Exception("Where is my bridge pro?");
             }
@@ -58,39 +58,15 @@ namespace LutronCaseta
 
             using (var connector = new BridgeSslStreamConnector(options, cancelToken))
             {
-                try
-                {
-                    bool isConnected = await connector.Connect();
 
-                    await Task.Delay(2000);
-
-                    for (var i = 0; i < 10; i++)
-                    {
-                        switch (i)
-                        {
-                            case 4:
-                                connector.GetDevices();
-                                break;
-                            case 1:
-                            default:
-                                connector.Ping();
-                                break;
-                        }
-
-                        await Task.Delay(2000);
-
-
-                    }
-                }
-                catch (Exception ex)
-                {
-                    ExceptionHandler.Handle(ex);
-                }
+                bool isConnected = await connector.Connect();
+                connector.GetDevices();
+                await Task.Delay(2000);
+                
 
             }
 
         }
-        
     }
 
 }
