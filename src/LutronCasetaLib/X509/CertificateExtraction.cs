@@ -30,14 +30,7 @@ namespace LutronCaseta
             }
             ParseKeySets();
         }
-
-
-        public Certificate FindCertificate(Org.BouncyCastle.Crypto.Tls.CertificateRequest certificateRequest)
-        {
-            var certStructures = Certificates.Select(a => a.CertificateStructure);
-            return new Certificate(certStructures.ToArray());
-        }
-
+        
         void ParseKeySets()
         {
             var fi = new FileInfo(FilePath);
