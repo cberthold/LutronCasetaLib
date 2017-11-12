@@ -1,4 +1,6 @@
 ﻿using LutronCaseta.Core.Exceptions;
+using LutronCaseta.Core.Logging;
+using LutronCaseta.Logging;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -34,6 +36,11 @@ namespace LutronCaseta.Core.Options
         /// Write Timeout for TLS stream
         /// </summary>
         public int WriteTimeout { get; set; } = 5000;
+
+        /// <summary>
+        /// Logging interface
+        /// </summary>
+        public ILogging Logging { get; set; } = NullLogging.Instance;
 
         /// <summary>
         /// Function that validates the server certificate - default is always TRUE

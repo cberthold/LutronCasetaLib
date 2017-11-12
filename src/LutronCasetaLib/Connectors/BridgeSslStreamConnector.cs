@@ -175,11 +175,11 @@ namespace LutronCaseta.Connectors
                     var offset = segment.Offset;
                     var count = segment.Count;
                     var str = Encoding.UTF8.GetString(segment.Array, offset, count);
-                    Console.Write(str);
+                    Options.Logging.Debug(str);
                     var mappedObjcect = new ResponseMapper().MapJsonResponse(str);
                 },
                 //(e) => ExceptionHandler.Handle(e),
-                () => Console.WriteLine("Done"), CancelToken);
+                () => Options.Logging.Debug("Observable Done"), CancelToken);
         }
 
         #endregion
@@ -211,11 +211,12 @@ namespace LutronCaseta.Connectors
 
         private void WriteStringInternal(string stringToWrite)
         {
-            Console.WriteLine($"Writing: {stringToWrite}");
+            var logging = Options.Logging;
+            logging.Debug($"Writing: {stringToWrite}");
             var writeBuffer = Encoding.UTF8.GetBytes(stringToWrite);
             //var value = DisposableValue.Create(new ArraySegment<byte>(writeBuffer, 0, writeBuffer.Length), DisposableValue<ArraySegment<byte>>.Empty);
             writeObservable.OnNext(new ArraySegment<byte>(writeBuffer, 0, writeBuffer.Length));
-            Console.WriteLine("Sent");
+            logging.Debug("Sent");
         }
 
         #endregion

@@ -1,7 +1,9 @@
 ﻿using Example;
 using Example.Core;
 using LutronCaseta.Connectors;
+using LutronCaseta.Core.Options;
 using LutronCaseta.Discovery;
+using LutronCaseta.Logging;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -49,7 +51,12 @@ namespace LutronCaseta
             IPAddress bridgeAddress = firstDevice.IPAddress;
             var cancelToken = new CancellationToken();
 
-            using (var connector = new BridgeSslStreamConnector(bridgeAddress, cancelToken))
+            var options = new BridgeSslStreamOptions(bridgeAddress)
+            {
+                Logging = new ConsoleLogging(),
+            };
+
+            using (var connector = new BridgeSslStreamConnector(options, cancelToken))
             {
                 try
                 {
