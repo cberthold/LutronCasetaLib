@@ -1,12 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard1.6</TargetFramework>
 	<AssemblyName>LutronCaseta</AssemblyName>
   </PropertyGroup>
   
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="System.Net.Security" Version="4.3.2" />
     <PackageReference Include="Zeroconf" Version="2.9.0" />
   </ItemGroup>
   

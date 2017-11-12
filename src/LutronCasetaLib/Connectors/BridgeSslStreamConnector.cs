@@ -102,7 +102,9 @@ namespace LutronCaseta.Connectors
 
             try
             {
-                TcpClient = new TcpClient(bridgeAddress, options.BridgePort);
+                
+                TcpClient = new TcpClient(AddressFamily.InterNetwork);
+                await TcpClient.ConnectAsync(options.BridgeAddress, options.BridgePort);
             }
             catch (Exception ex)
             {
