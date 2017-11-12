@@ -21,7 +21,7 @@ namespace LutronCaseta
         readonly X509CertificateParser certificatePemParser = new X509CertificateParser();
         readonly PrivateKeyParser privateKeyParser = new PrivateKeyParser();
 
-        public string FilePath { get; private set; } = @"C:\code\CasetaStatus\src\LutronCasetaLib\lutronbridge.pem";
+        public string FilePath { get; private set; } = @"lutronbridge.pem";
         public CertificateExtraction(string filePath = null)
         {
             if (filePath != null)

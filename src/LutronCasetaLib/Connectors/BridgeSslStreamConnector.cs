@@ -19,21 +19,21 @@ using System.Threading.Tasks;
 
 namespace LutronCaseta.Connectors
 {
-    
+
     public class BridgeSslStreamConnector : IDisposable, IWriteProcessor, IBridgeConnector
     {
 
         #region host information and public props
-        
+
         public BridgeSslStreamOptions Options { get; private set; }
 
         public CancellationToken CancelToken { get; private set; }
-        
+
         public TcpClient TcpClient { get; private set; }
         public SslStream SslStream { get; private set; }
 
         #endregion
-        
+
         #region private properties
 
         IObservable<ArraySegment<byte>> readObservable;
@@ -43,10 +43,14 @@ namespace LutronCaseta.Connectors
 
         #region Constructor
 
-        public BridgeSslStreamConnector(IPAddress bridgeAddress, CancellationToken token = default(CancellationToken))
+        public BridgeSslStreamConnector(IPAddress bridgeAddress, X509Certificate privateKeyCertificate, CancellationToken token = default(CancellationToken))
         {
             var ipAddress = bridgeAddress ?? throw new ArgumentNullException(nameof(bridgeAddress));
-            Options = new BridgeSslStreamOptions(ipAddress);
+            Options = new BridgeSslStreamOptions(ipAddress)
+            {
+                LocalCertificateSelectionPolicy = (a1, a2, a3, a4) => privateKeyCertificate,
+            };
+
             CancelToken = token;
         }
 
@@ -78,7 +82,7 @@ namespace LutronCaseta.Connectors
 
             // validate options
             options.Validate();
-            
+
             // create the server validation policy to be used by the SSL stream
             var serverValidationPolicy = options.ServerValidationPolicy;
             var serverValidationCallback = new RemoteCertificateValidationCallback((o, cert, chain, policy) =>

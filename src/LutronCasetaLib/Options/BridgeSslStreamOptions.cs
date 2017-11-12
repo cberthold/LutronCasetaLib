@@ -75,10 +75,9 @@ namespace LutronCaseta.Core.Options
 
         public static Func<string, X509CertificateCollection, X509Certificate, string[], X509Certificate> DefaultLocalCertificateSelectionPolicy()
         {
-            var extraction = new CertificateExtraction();
             return (host, localCerts, remoteCerts, acceptableUsers) =>
             {
-                return extraction.KeyedCertificate;
+                throw new NotImplementedException($"{nameof(DefaultLocalCertificateSelectionPolicy)} must be implemented to select a certificate");
             };
         }
 

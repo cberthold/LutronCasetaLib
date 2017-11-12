@@ -51,9 +51,12 @@ namespace LutronCaseta
             IPAddress bridgeAddress = firstDevice.IPAddress;
             var cancelToken = new CancellationToken();
 
+            var extraction = new CertificateExtraction();
+
             var options = new BridgeSslStreamOptions(bridgeAddress)
             {
                 Logging = new ConsoleLogging(),
+                LocalCertificateSelectionPolicy = (a1, a2, a3, a4) => extraction.KeyedCertificate,
             };
 
             using (var connector = new BridgeSslStreamConnector(options, cancelToken))

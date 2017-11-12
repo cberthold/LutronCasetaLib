@@ -9,6 +9,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="lutronbridge.pem" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="lutronbridge.pem" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\LutronCaseta.Certificates\LutronCaseta.Certificates.csproj" />
+    <ProjectReference Include="..\..\src\LutronCaseta.Core\LutronCaseta.Core.csproj" />
     <ProjectReference Include="..\..\src\LutronCasetaLib\LutronCaseta.csproj" />
   </ItemGroup>
 
