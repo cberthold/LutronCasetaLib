@@ -1,6 +1,7 @@
 ﻿using Example;
 using Example.Core;
 using LutronCaseta.Connectors;
+using LutronCaseta.Core.Info;
 using LutronCaseta.Core.Options;
 using LutronCaseta.Discovery;
 using LutronCaseta.Logging;
@@ -61,14 +62,31 @@ namespace LutronCaseta
 
             using (var connector = new BridgeSslStreamConnector(options, cancelToken))
             {
-
+                var zone1 = new TestZone();
                 bool isConnected = await connector.Connect();
+                connector.Responses.Subscribe((response) =>
+                {
+                    var r = response;
+                });
                 connector.GetDevices();
                 await Task.Delay(2000);
-                
+                connector.GetScenes();
+                await Task.Delay(2000);
+                connector.GetZoneStatus(zone1);
+                await Task.Delay(2000);
+                connector.SetZoneLevel(zone1, 50);
+                await Task.Delay(2000);
+                connector.TurnOffZone(zone1);
+                await Task.Delay(2000);
+                connector.TurnOnZone(zone1);
 
             }
 
+        }
+
+        private class TestZone : IZoneInfo
+        {
+            public int Id => 1;
         }
     }
 
