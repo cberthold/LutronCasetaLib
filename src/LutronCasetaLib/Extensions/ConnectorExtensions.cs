@@ -18,19 +18,19 @@ namespace LutronCaseta
             processor.ExecuteCommand(command);
         }
 
-        public static void GetDevices(this IWriteProcessor processor)
+        public static void SendGetDevices(this IWriteProcessor processor)
         {
             var command = new GetDevicesCommand();
             processor.ExecuteCommand(command);
         }
 
-        public static void GetScenes(this IWriteProcessor processor)
+        public static void SendGetScenes(this IWriteProcessor processor)
         {
             var command = new GetScenesCommand();
             processor.ExecuteCommand(command);
         }
 
-        public static void GetZoneStatus(this IWriteProcessor processor, IZoneInfo zone)
+        public static void SendGetZoneStatus(this IWriteProcessor processor, IZoneInfo zone)
         {
             var command = new GetZoneStatusCommand(zone.Id);
             processor.ExecuteCommand(command);

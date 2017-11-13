@@ -68,11 +68,11 @@ namespace LutronCaseta
                 {
                     var r = response;
                 });
-                connector.GetDevices();
+                connector.SendGetDevices();
                 await Task.Delay(2000);
-                connector.GetScenes();
+                connector.SendGetScenes();
                 await Task.Delay(2000);
-                connector.GetZoneStatus(zone1);
+                connector.SendGetZoneStatus(zone1);
                 await Task.Delay(2000);
                 connector.SetZoneLevel(zone1, 50);
                 await Task.Delay(2000);
