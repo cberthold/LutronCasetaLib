@@ -2,6 +2,7 @@
 using LutronCaseta.Core.Connectors;
 using LutronCaseta.Core.Exceptions;
 using LutronCaseta.Core.Options;
+using LutronCaseta.Core.Responses;
 using LutronCaseta.Responses;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ using System.Net.Security;
 using System.Net.Sockets;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -31,6 +33,7 @@ namespace LutronCaseta.Connectors
 
         public TcpClient TcpClient { get; private set; }
         public SslStream SslStream { get; private set; }
+        public Subject<ICommuniqueType> Responses { get; } = new Subject<ICommuniqueType>();
 
         #endregion
 
@@ -38,6 +41,7 @@ namespace LutronCaseta.Connectors
 
         IObservable<ArraySegment<byte>> readObservable;
         IObserver<ArraySegment<byte>> writeObservable;
+        readonly ResponseMapper responseMapper = new ResponseMapper();
 
         #endregion
 
@@ -102,7 +106,7 @@ namespace LutronCaseta.Connectors
 
             try
             {
-                
+
                 TcpClient = new TcpClient(AddressFamily.InterNetwork);
                 await TcpClient.ConnectAsync(options.BridgeAddress, options.BridgePort);
             }
@@ -172,20 +176,26 @@ namespace LutronCaseta.Connectors
         {
 
             readObservable = sslStream
-                .ToStreamObservable(24576)
+                .ToStreamObservable(1)
                 .SubscribeOn(NewThreadScheduler.Default);
 
+            var encoding = Encoding.UTF8;
             readObservable
-                .Subscribe((segment) =>
+                .Select(a=> encoding.GetString(a.Array, a.Offset, a.Count))
+                .Scan(String.Empty, (a, b) => (a.EndsWith("\n") ? "" : a) +  b)
+                .Where(a => a.EndsWith("\n"))
+                .Subscribe((str) =>
                 {
-                    var offset = segment.Offset;
-                    var count = segment.Count;
-                    var str = Encoding.UTF8.GetString(segment.Array, offset, count);
                     Options.Logging.Debug(str);
-                    var mappedObjcect = new ResponseMapper().MapJsonResponse(str);
+                    var mappedObject = responseMapper.MapJsonResponse(str);
+                    Responses.OnNext(mappedObject);
                 },
-                //(e) => ExceptionHandler.Handle(e),
-                () => Options.Logging.Debug("Observable Done"), CancelToken);
+                (e) => Responses.OnError(e),
+                () =>
+                {
+                    Options.Logging.Debug("Read Subscription Done");
+                    Responses.OnCompleted();
+                }, CancelToken);
         }
 
         #endregion
