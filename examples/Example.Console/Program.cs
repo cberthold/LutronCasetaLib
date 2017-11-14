@@ -68,7 +68,9 @@ namespace LutronCaseta
                 {
                     var r = response;
                 });
-                connector.SendGetDevices();
+                var result = await connector.Ping();
+                await Task.Delay(2000);
+                var result2 = await connector.GetDevices();
                 await Task.Delay(2000);
                 connector.SendGetScenes();
                 await Task.Delay(2000);

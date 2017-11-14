@@ -1,9 +1,14 @@
 ﻿using LutronCaseta.Commands.Write;
 using LutronCaseta.Core.Commands.Write;
 using LutronCaseta.Core.Info;
+using LutronCaseta.Core.Responses;
+using LutronCaseta.Responses;
 using System;
 using System.Collections.Generic;
+using System.Reactive;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace LutronCaseta
 {
@@ -12,16 +17,36 @@ namespace LutronCaseta
 
         #region Write commands
 
-        public static void Ping(this IWriteProcessor processor)
+        public static void SendPing(this IWriteProcessor processor)
         {
             var command = new PingCommand();
             processor.ExecuteCommand(command);
+        }
+
+        public static Task<ICommuniqueType> Ping(this IWriteProcessor processor, CancellationToken token = default(CancellationToken))
+        {
+            var task = processor.Responses
+                .WaitFor((c) => c.Header?.MessageBodyType == ResponseMapper.RESPONSE_PING, token: token);
+            
+            processor.SendPing();
+
+            return task;
         }
 
         public static void SendGetDevices(this IWriteProcessor processor)
         {
             var command = new GetDevicesCommand();
             processor.ExecuteCommand(command);
+        }
+
+        public static Task<ICommuniqueType> GetDevices(this IWriteProcessor processor, CancellationToken token = default(CancellationToken))
+        {
+            var task = processor.Responses
+                .WaitFor((c) => c.Header?.MessageBodyType == ResponseMapper.RESPONSE_GET_DEVICES, token: token);
+
+            processor.SendGetDevices();
+
+            return task;
         }
 
         public static void SendGetScenes(this IWriteProcessor processor)
