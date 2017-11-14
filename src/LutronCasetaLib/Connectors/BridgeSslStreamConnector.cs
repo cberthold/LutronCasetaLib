@@ -116,8 +116,9 @@ namespace LutronCaseta.Connectors
                 var tcpClient = GetTcpClient();
                 TcpClient = tcpClient;
                 await tcpClient.ConnectAsync(options.BridgeAddress, options.BridgePort);
-                SslStream stream = GetSslStream(tcpClient, options);
 
+                SslStream stream = GetSslStream(tcpClient, options);
+                SslStream = stream;
 
                 // authenticate the client to the Lutron Bridge
                 await stream.AuthenticateAsClientAsync(bridgeAddress, null, SslProtocols.Tls12, false);
