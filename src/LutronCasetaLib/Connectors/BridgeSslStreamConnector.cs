@@ -11,6 +11,7 @@ using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Reactive.Concurrency;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Security.Authentication;
@@ -41,6 +42,8 @@ namespace LutronCaseta.Connectors
 
         IObservable<ArraySegment<byte>> readObservable;
         IObserver<ArraySegment<byte>> writeObservable;
+        CompositeDisposable compositeDisposable = new CompositeDisposable();
+
         readonly ResponseMapper responseMapper = new ResponseMapper();
 
         #endregion
@@ -56,12 +59,21 @@ namespace LutronCaseta.Connectors
             };
 
             CancelToken = token;
+
+            SetupDisposables();
         }
 
         public BridgeSslStreamConnector(BridgeSslStreamOptions options, CancellationToken token = default(CancellationToken))
         {
             Options = options ?? throw new ArgumentNullException(nameof(options));
             CancelToken = token;
+
+            SetupDisposables();
+        }
+
+        private void SetupDisposables()
+        {
+            compositeDisposable.Add(Responses);
         }
 
         #endregion
@@ -80,6 +92,13 @@ namespace LutronCaseta.Connectors
             return authenticated;
         }
 
+        private TcpClient GetTcpClient()
+        {
+            var client = new TcpClient(AddressFamily.InterNetwork);
+            compositeDisposable.Add(client);
+            return client;
+        }
+
         private async Task<bool> ConnectToSslStream()
         {
             var options = Options;
@@ -87,55 +106,19 @@ namespace LutronCaseta.Connectors
             // validate options
             options.Validate();
 
-            // create the server validation policy to be used by the SSL stream
-            var serverValidationPolicy = options.ServerValidationPolicy;
-            var serverValidationCallback = new RemoteCertificateValidationCallback((o, cert, chain, policy) =>
-            {
-                return serverValidationPolicy(cert, chain, policy);
-            });
-
-            // create the local client certificate selection policy to be used by the SSL Stream
-            var localCertificateSelectionPolicy = options.LocalCertificateSelectionPolicy;
-            var localSelectionCallback = new LocalCertificateSelectionCallback((o, host, localCerts, remoteCerts, acceptableUsers) =>
-            {
-                return localCertificateSelectionPolicy(host, localCerts, remoteCerts, acceptableUsers);
-            });
-
-            // connect to Lutron Bridge TCP port
-            string bridgeAddress = options.BridgeAddress.ToString();
-
-            try
-            {
-
-                TcpClient = new TcpClient(AddressFamily.InterNetwork);
-                await TcpClient.ConnectAsync(options.BridgeAddress, options.BridgePort);
-            }
-            catch (Exception ex)
-            {
-                CloseStreams();
-
-                throw ex;
-            }
-
-
-            // open SslStream using TCP Client Stream to ride on
-            var closeInnerStreamOnOuterStreamClose = false;
-            var stream = SslStream = new SslStream(
-                TcpClient.GetStream(),
-                closeInnerStreamOnOuterStreamClose,
-                serverValidationCallback,
-                localSelectionCallback,
-                EncryptionPolicy.RequireEncryption
-                );
-
-            // set the read and write timeouts on the ssl stream
-            stream.ReadTimeout = options.ReadTimeout;
-            stream.WriteTimeout = options.WriteTimeout;
-
             var isAuthenticated = false;
 
             try
             {
+                // connect to Lutron Bridge TCP port
+                string bridgeAddress = options.BridgeAddress.ToString();
+
+                var tcpClient = GetTcpClient();
+                TcpClient = tcpClient;
+                await tcpClient.ConnectAsync(options.BridgeAddress, options.BridgePort);
+                SslStream stream = GetSslStream(tcpClient, options);
+
+
                 // authenticate the client to the Lutron Bridge
                 await stream.AuthenticateAsClientAsync(bridgeAddress, null, SslProtocols.Tls12, false);
                 isAuthenticated = stream.IsAuthenticated;
@@ -162,6 +145,42 @@ namespace LutronCaseta.Connectors
             return isAuthenticated;
         }
 
+        private SslStream GetSslStream(TcpClient tcpClient, BridgeSslStreamOptions options)
+        {
+            // create the server validation policy to be used by the SSL stream
+            var serverValidationPolicy = options.ServerValidationPolicy;
+            var serverValidationCallback = new RemoteCertificateValidationCallback((o, cert, chain, policy) =>
+            {
+                return serverValidationPolicy(cert, chain, policy);
+            });
+
+            // create the local client certificate selection policy to be used by the SSL Stream
+            var localCertificateSelectionPolicy = options.LocalCertificateSelectionPolicy;
+            var localSelectionCallback = new LocalCertificateSelectionCallback((o, host, localCerts, remoteCerts, acceptableUsers) =>
+            {
+                return localCertificateSelectionPolicy(host, localCerts, remoteCerts, acceptableUsers);
+            });
+
+            // open SslStream using TCP Client Stream to ride on
+            var closeInnerStreamOnOuterStreamClose = false;
+            var stream = new SslStream(
+                tcpClient.GetStream(),
+                closeInnerStreamOnOuterStreamClose,
+                serverValidationCallback,
+                localSelectionCallback,
+                EncryptionPolicy.RequireEncryption
+                );
+
+            // set the read and write timeouts on the ssl stream
+            stream.ReadTimeout = options.ReadTimeout;
+            stream.WriteTimeout = options.WriteTimeout;
+
+            // enssure disposables gets added
+            compositeDisposable.Add(stream);
+
+            return stream;
+        }
+
         #endregion
 
         #region Observable listeners
@@ -181,8 +200,8 @@ namespace LutronCaseta.Connectors
 
             var encoding = Encoding.UTF8;
             readObservable
-                .Select(a=> encoding.GetString(a.Array, a.Offset, a.Count))
-                .Scan(String.Empty, (a, b) => (a.EndsWith("\n") ? "" : a) +  b)
+                .Select(a => encoding.GetString(a.Array, a.Offset, a.Count))
+                .Scan(String.Empty, (a, b) => (a.EndsWith("\n") ? "" : a) + b)
                 .Where(a => a.EndsWith("\n"))
                 .Subscribe((str) =>
                 {
@@ -253,6 +272,9 @@ namespace LutronCaseta.Connectors
                 // dispose managed state (managed objects).
                 CloseStreams();
 
+                // close response subject
+                compositeDisposable.Dispose();
+                compositeDisposable = null;
             }
 
             // free unmanaged resources.
